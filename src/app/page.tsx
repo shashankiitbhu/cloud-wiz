@@ -1,7 +1,9 @@
+"use client";
+
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import PromptBar from "@/components/PromptBar";
-import CanvasPlaceholder from "@/components/CanvasPlaceholder";
+import Canvas from "@/components/Canvas";
 
 export default function Home() {
   return (
@@ -11,9 +13,8 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
 
-        {/* Main canvas area */}
         <main className="relative flex flex-1 flex-col overflow-hidden">
-          <CanvasPlaceholder />
+          <Canvas />
           <PromptBar />
         </main>
       </div>

@@ -9,6 +9,7 @@ import {
   Shield,
   Server,
 } from "lucide-react";
+import useCanvasStore from "@/store/useCanvasStore";
 
 const NAV_ITEMS = [
   { icon: Layers, label: "Canvas", active: true },
@@ -24,6 +25,10 @@ const NODE_PALETTE = [
 ] as const;
 
 export default function Sidebar() {
+  const nodeCount = useCanvasStore((s) => s.nodes.length);
+  const edgeCount = useCanvasStore((s) => s.edges.length);
+  const chaosMode = useCanvasStore((s) => s.chaosMode);
+
   return (
     <aside className="flex w-48 flex-col border-r border-green bg-black">
       {/* Navigation */}
@@ -71,15 +76,17 @@ export default function Sidebar() {
         <div className="space-y-1 text-[10px] text-gray-light">
           <div className="flex justify-between">
             <span>Nodes</span>
-            <span className="text-green">0</span>
+            <span className="text-green">{nodeCount}</span>
           </div>
           <div className="flex justify-between">
             <span>Edges</span>
-            <span className="text-green">0</span>
+            <span className="text-green">{edgeCount}</span>
           </div>
           <div className="flex justify-between">
             <span>Status</span>
-            <span className="text-green">IDLE</span>
+            <span className={chaosMode ? "text-orange" : "text-green"}>
+              {chaosMode ? "CHAOS" : nodeCount > 0 ? "ACTIVE" : "IDLE"}
+            </span>
           </div>
         </div>
       </div>

@@ -97,3 +97,42 @@ body {
   animation: scanline 4s linear infinite;
   pointer-events: none;
 }
+
+/* ── React Flow overrides ── */
+.react-flow__edge-path {
+  stroke: #39FF14;
+  stroke-width: 1.5;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  from { stroke-dashoffset: 10; }
+  to { stroke-dashoffset: 0; }
+}
+
+.react-flow__connection-line {
+  stroke: #39FF14;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+.react-flow__selection {
+  background: rgba(57, 255, 20, 0.05);
+  border: 1px solid #39FF14;
+}
+
+.react-flow__controls {
+  border-radius: 0 !important;
+}
+
+.react-flow__controls button {
+  border-radius: 0 !important;
+}
+
+.react-flow__minimap {
+  border-radius: 0 !important;
+}
