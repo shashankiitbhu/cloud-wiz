@@ -33,6 +33,16 @@ export interface InfraNodeData extends Record<string, unknown> {
 
 export type InfraNode = Node<InfraNodeData>;
 
+export type BudgetTier = "bootstrapped" | "startup" | "enterprise";
+export type ScaleTier = "mvp" | "launch" | "hypergrowth";
+export type OpsPref = "solo" | "small-team" | "full-control";
+
+export interface Constraints {
+  budget: BudgetTier;
+  scale: ScaleTier;
+  ops: OpsPref;
+}
+
 interface CanvasState {
   nodes: InfraNode[];
   edges: Edge[];
@@ -40,6 +50,10 @@ interface CanvasState {
   failureImpact: FailureImpact | null;
   resilienceReport: ResilienceReport | null;
   chaosReportOpen: boolean;
+
+  // Constraint modal
+  pendingPrompt: string | null;
+  constraintModalOpen: boolean;
 
   // React Flow handlers
   onNodesChange: OnNodesChange;
@@ -51,6 +65,11 @@ interface CanvasState {
   setEdges: (edges: Edge[]) => void;
   addNode: (node: InfraNode) => void;
   removeNode: (id: string) => void;
+
+  // Constraint modal
+  setPendingPrompt: (prompt: string) => void;
+  setConstraintModalOpen: (open: boolean) => void;
+  clearPendingPrompt: () => void;
 
   // Chaos
   setChaosMode: (active: boolean) => void;
@@ -68,6 +87,9 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
   failureImpact: null,
   resilienceReport: null,
   chaosReportOpen: false,
+
+  pendingPrompt: null,
+  constraintModalOpen: false,
 
   onNodesChange: (changes) => {
     set({ nodes: applyNodeChanges(changes, get().nodes) as InfraNode[] });
@@ -96,6 +118,12 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
       nodes: s.nodes.filter((n) => n.id !== id),
       edges: s.edges.filter((e) => e.source !== id && e.target !== id),
     })),
+
+  setPendingPrompt: (prompt) =>
+    set({ pendingPrompt: prompt, constraintModalOpen: true }),
+  setConstraintModalOpen: (open) => set({ constraintModalOpen: open }),
+  clearPendingPrompt: () =>
+    set({ pendingPrompt: null, constraintModalOpen: false }),
 
   setChaosMode: (active) => set({ chaosMode: active }),
 

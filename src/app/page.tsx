@@ -11,6 +11,7 @@ import SaveLoadPanel from "@/components/SaveLoadPanel";
 import CostPanel from "@/components/CostPanel";
 import CompliancePanel from "@/components/CompliancePanel";
 import SyncPanel from "@/components/SyncPanel";
+import ConstraintModal from "@/components/ConstraintModal";
 import ImportModal from "@/components/ImportModal";
 import TemplatesModal from "@/components/TemplatesModal";
 
@@ -61,6 +62,7 @@ export default function Home() {
       </div>
 
       {/* Modals */}
+      <ConstraintModal />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <TemplatesModal open={templatesOpen} onClose={() => setTemplatesOpen(false)} />
     </div>

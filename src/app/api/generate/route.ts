@@ -26,7 +26,16 @@ Rules:
 3. Create a realistic topology — load balancers in front, databases at the back, services in the middle.
 4. Use descriptive labels like "Nginx Load Balancer", "Auth Service Pod", "Redis Session Cache", "PostgreSQL Primary".
 5. Include monitoring/observability nodes when appropriate.
-6. Return ONLY the raw JSON object. No markdown. No backticks. No text before or after.`;
+6. Return ONLY the raw JSON object. No markdown. No backticks. No text before or after.
+
+CONSTRAINT ENFORCEMENT (if the user includes CRITICAL CONSTRAINTS):
+- You MUST select infrastructure nodes that fit the user's budget and operational preference.
+- If they choose "Bootstrapped" or "Solo Dev", do NOT output Kubernetes, complex load balancers, or expensive AWS services. Favor free-tier friendly services like Vercel, Supabase, Cloudflare, or Render. Use "server" or "docker" node types for simple deployments.
+- If they choose "MVP" scale, keep the architecture minimal (5-7 nodes). Do not over-engineer.
+- If they choose "Startup" budget with "Small Team" ops, favor Docker-based deployments, managed databases, and simple load balancers. Avoid Kubernetes unless explicitly requested.
+- Only generate Kubernetes nodes, complex networking (multiple firewalls, CDN + API gateway chains), and multi-region setups for "Enterprise" budget OR "Full Control" operational preference.
+- Scale the number of nodes to match the expected traffic: MVP = 5-7 nodes, Launch = 7-10 nodes, Hypergrowth = 10-15 nodes.
+- Always match infrastructure complexity to the operational preference. Solo devs should get PaaS-style architectures, not Kubernetes clusters.`;
 
 export async function POST(req: NextRequest) {
   try {
