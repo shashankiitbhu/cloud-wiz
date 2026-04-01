@@ -7,10 +7,14 @@ import {
   Controls,
   MiniMap,
   BackgroundVariant,
+  useReactFlow,
+  getNodesBounds,
+  getViewportForBounds,
   type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { FolderOpen, Upload, Layout, Container, Trash2, Workflow } from "lucide-react";
+import { toPng } from "html-to-image";
+import { FolderOpen, Upload, Layout, Container, Trash2, Workflow, Download } from "lucide-react";
 
 import useCanvasStore from "@/store/useCanvasStore";
 import TerminalNode from "@/components/nodes/TerminalNode";
@@ -171,6 +175,59 @@ function WelcomeScreen({
   );
 }
 
+// ── Download Button (must be inside ReactFlow provider) ──
+
+function DownloadButton() {
+  const { getNodes } = useReactFlow();
+
+  const handleDownload = useCallback(() => {
+    const nodesBounds = getNodesBounds(getNodes());
+    const padding = 50;
+    const width = nodesBounds.width + padding * 2;
+    const height = nodesBounds.height + padding * 2;
+
+    const viewport = getViewportForBounds(
+      nodesBounds,
+      width,
+      height,
+      0.5,
+      2,
+      0.15
+    );
+
+    const viewportEl = document.querySelector(
+      ".react-flow__viewport"
+    ) as HTMLElement | null;
+    if (!viewportEl) return;
+
+    toPng(viewportEl, {
+      backgroundColor: "#000000",
+      width,
+      height,
+      style: {
+        width: `${width}px`,
+        height: `${height}px`,
+        transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+      },
+    }).then((dataUrl) => {
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "cloud-wiz-architecture.png";
+      a.click();
+    });
+  }, [getNodes]);
+
+  return (
+    <button
+      onClick={handleDownload}
+      className="absolute right-3 top-3 z-10 flex items-center gap-1.5 border border-green bg-black px-2.5 py-1 text-[10px] font-bold uppercase text-green transition-colors hover:bg-green hover:text-black"
+    >
+      <Download className="h-3 w-3" />
+      PNG
+    </button>
+  );
+}
+
 // ── Canvas ─────────────────────────────────────────────
 
 interface CanvasProps {
@@ -269,6 +326,7 @@ export default function Canvas({
             borderRadius: 0,
           }}
         />
+        <DownloadButton />
       </ReactFlow>
     </div>
   );
