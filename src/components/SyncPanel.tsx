@@ -90,6 +90,7 @@ export default function SyncPanel({ open, onClose }: SyncPanelProps) {
 
   const nodes = useCanvasStore((s) => s.nodes);
   const edges = useCanvasStore((s) => s.edges);
+  const activeCloud = useCanvasStore((s) => s.activeCloud);
 
   // ── Helpers ────────────────────────────────────────
 
@@ -217,6 +218,7 @@ export default function SyncPanel({ open, onClose }: SyncPanelProps) {
         baseDir,
         nodes,
         edges,
+        activeCloud,
         addLog
       );
 

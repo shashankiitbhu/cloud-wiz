@@ -2,12 +2,17 @@
 
 import { useCallback, useRef } from "react";
 import { Terminal, Zap, RotateCcw, ExternalLink } from "lucide-react";
-import useCanvasStore from "@/store/useCanvasStore";
+import useCanvasStore, { type CloudProvider } from "@/store/useCanvasStore";
 import { analyzeFailure, analyzeResilience } from "@/lib/graphAnalysis";
+import { CLOUD_LABELS, CLOUD_TAGS } from "@/lib/cloudProviders";
+
+const CLOUDS: CloudProvider[] = ["aws", "digitalocean", "local-k8s"];
 
 export default function Header() {
   const chaosMode = useCanvasStore((s) => s.chaosMode);
   const nodeCount = useCanvasStore((s) => s.nodes.length);
+  const activeCloud = useCanvasStore((s) => s.activeCloud);
+  const setActiveCloud = useCanvasStore((s) => s.setActiveCloud);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const triggerChaos = useCallback(() => {
@@ -76,14 +81,33 @@ export default function Header() {
         </span>
       </div>
 
-      {/* Center status */}
-      <div className="hidden items-center gap-2 text-xs text-gray-light sm:flex">
-        <span
-          className={`inline-block h-2 w-2 ${
-            chaosMode ? "bg-orange animate-pulse" : "bg-green"
-          }`}
-        />
-        {chaosMode ? "CHAOS MODE" : "SYSTEM ONLINE"}
+      {/* Cloud Toggle */}
+      <div className="hidden items-center gap-2 sm:flex">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-light">
+          Target:
+        </span>
+        <div className="flex border border-green">
+          {CLOUDS.map((c) => (
+            <button
+              key={c}
+              onClick={() => setActiveCloud(c)}
+              className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors ${
+                activeCloud === c
+                  ? "bg-green text-black"
+                  : "text-green hover:bg-green/10"
+              }`}
+            >
+              {CLOUD_LABELS[c]}
+              <span
+                className={`ml-1 text-[8px] ${
+                  activeCloud === c ? "text-black/60" : "text-gray-light"
+                }`}
+              >
+                {CLOUD_TAGS[c]}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Right actions */}

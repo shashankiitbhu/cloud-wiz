@@ -42,6 +42,8 @@ export interface InfraNodeData extends Record<string, unknown> {
 
 export type InfraNode = Node<InfraNodeData>;
 
+export type CloudProvider = "aws" | "digitalocean" | "local-k8s";
+
 export type BudgetTier = "bootstrapped" | "startup" | "enterprise";
 export type ScaleTier = "mvp" | "launch" | "hypergrowth";
 export type OpsPref = "solo" | "small-team" | "full-control";
@@ -60,6 +62,10 @@ interface CanvasState {
   resilienceReport: ResilienceReport | null;
   chaosReportOpen: boolean;
 
+  // Cloud provider
+  activeCloud: CloudProvider;
+  cloudFlash: boolean;
+
   // Constraint modal
   pendingPrompt: string | null;
   constraintModalOpen: boolean;
@@ -74,6 +80,9 @@ interface CanvasState {
   setEdges: (edges: Edge[]) => void;
   addNode: (node: InfraNode) => void;
   removeNode: (id: string) => void;
+
+  // Cloud provider
+  setActiveCloud: (cloud: CloudProvider) => void;
 
   // Constraint modal
   setPendingPrompt: (prompt: string) => void;
@@ -96,6 +105,9 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
   failureImpact: null,
   resilienceReport: null,
   chaosReportOpen: false,
+
+  activeCloud: "aws",
+  cloudFlash: false,
 
   pendingPrompt: null,
   constraintModalOpen: false,
@@ -127,6 +139,11 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
       nodes: s.nodes.filter((n) => n.id !== id),
       edges: s.edges.filter((e) => e.source !== id && e.target !== id),
     })),
+
+  setActiveCloud: (cloud) => {
+    set({ activeCloud: cloud, cloudFlash: true });
+    setTimeout(() => set({ cloudFlash: false }), 400);
+  },
 
   setPendingPrompt: (prompt) =>
     set({ pendingPrompt: prompt, constraintModalOpen: true }),

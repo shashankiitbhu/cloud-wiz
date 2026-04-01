@@ -1,6 +1,6 @@
-import type { InfraNode } from "@/store/useCanvasStore";
+import type { InfraNode, CloudProvider } from "@/store/useCanvasStore";
 import type { Edge } from "@xyflow/react";
-import { generateTerraform } from "./generateTerraform";
+import { generateProviderTerraform } from "./cloudProviders";
 import { generateK8sYaml } from "./generateK8s";
 
 // ── Types ──────────────────────────────────────────────
@@ -108,6 +108,7 @@ export async function syncToGitHub(
   baseDir: string,
   nodes: InfraNode[],
   edges: Edge[],
+  activeCloud: CloudProvider,
   log: LogCallback
 ): Promise<SyncResult> {
   const owner = repo.owner.login;
@@ -126,7 +127,10 @@ export async function syncToGitHub(
 
   // 2 — Generate code from canvas state
   log("Converting canvas state to code...", "info");
-  const terraformContent = generateTerraform(nodes);
+  const terraformContent = generateProviderTerraform(
+    activeCloud,
+    nodes.map((n) => ({ label: n.data.label, type: n.data.type }))
+  );
   const k8sContent = generateK8sYaml(nodes);
 
   const dir = baseDir.replace(/^\.\//, "").replace(/\/$/, "");

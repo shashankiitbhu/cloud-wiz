@@ -70,6 +70,20 @@ body {
   animation: shake 0.5s ease-in-out infinite;
 }
 
+/* ── Cloud switch glitch flash ── */
+@keyframes glitch {
+  0%   { opacity: 1; filter: brightness(1); }
+  15%  { opacity: 0.7; filter: brightness(2) hue-rotate(90deg); }
+  30%  { opacity: 1; filter: brightness(1.5); }
+  50%  { opacity: 0.85; filter: brightness(2) hue-rotate(-45deg); }
+  70%  { opacity: 1; filter: brightness(1.2); }
+  100% { opacity: 1; filter: brightness(1); }
+}
+
+.animate-glitch {
+  animation: glitch 0.35s ease-out;
+}
+
 /* ── Cursor blink for prompt ── */
 @keyframes blink {
   0%, 50% { opacity: 1; }

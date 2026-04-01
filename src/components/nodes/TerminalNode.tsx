@@ -16,7 +16,11 @@ import {
   Container,
   Gauge,
 } from "lucide-react";
-import type { InfraNodeData, InfraNodeType } from "@/store/useCanvasStore";
+import useCanvasStore, {
+  type InfraNodeData,
+  type InfraNodeType,
+} from "@/store/useCanvasStore";
+import { getProviderLabel, CLOUD_LABELS } from "@/lib/cloudProviders";
 
 const ICON_MAP: Record<InfraNodeType, React.ElementType> = {
   docker: Container,
@@ -54,22 +58,34 @@ function TerminalNode({ data }: NodeProps) {
   const Icon = ICON_MAP[nodeData.type] || Box;
   const typeTag = TYPE_LABEL[nodeData.type] || "NODE";
 
+  const activeCloud = useCanvasStore((s) => s.activeCloud);
+  const cloudFlash = useCanvasStore((s) => s.cloudFlash);
+
+  const providerLabel = getProviderLabel(
+    activeCloud,
+    nodeData.type,
+    nodeData.label
+  );
+  const cloudTag = CLOUD_LABELS[activeCloud];
+
   const borderColor = chaos ? "#FF5F1F" : "#39FF14";
   const textColor = chaos ? "#FF5F1F" : "#39FF14";
-  const glowColor = chaos
-    ? "0 0 8px #FF5F1F44"
-    : "0 0 8px #39FF1422";
+  const glowColor = chaos ? "0 0 8px #FF5F1F44" : "0 0 8px #39FF1422";
+
+  // Flash effect: brief white border + glow when cloud changes
+  const flashBorder = cloudFlash && !chaos ? "#ffffff" : borderColor;
+  const flashGlow = cloudFlash && !chaos ? "0 0 12px #ffffff66" : glowColor;
 
   return (
     <div
-      className={chaos ? "animate-shake" : ""}
+      className={`${chaos ? "animate-shake" : ""} ${cloudFlash ? "animate-glitch" : ""}`}
       style={{
         background: "#000000",
-        border: `1px solid ${borderColor}`,
-        minWidth: 180,
+        border: `1px solid ${flashBorder}`,
+        minWidth: 190,
         fontFamily: "var(--font-jetbrains), monospace",
-        boxShadow: glowColor,
-        transition: "border-color 0.3s, box-shadow 0.3s",
+        boxShadow: flashGlow,
+        transition: "border-color 0.15s, box-shadow 0.15s",
       }}
     >
       {/* Title bar */}
@@ -79,9 +95,9 @@ function TerminalNode({ data }: NodeProps) {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "4px 8px",
-          borderBottom: `1px solid ${borderColor}`,
-          background: chaos ? "#FF5F1F0D" : "#39FF140D",
-          transition: "background 0.3s, border-color 0.3s",
+          borderBottom: `1px solid ${flashBorder}`,
+          background: chaos ? "#FF5F1F0D" : cloudFlash ? "#ffffff0D" : "#39FF140D",
+          transition: "background 0.15s, border-color 0.15s",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -98,33 +114,20 @@ function TerminalNode({ data }: NodeProps) {
             {typeTag}
           </span>
         </div>
-        {/* Window dots */}
-        <div style={{ display: "flex", gap: 3 }}>
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              background: chaos ? "#FF5F1F" : "#39FF14",
-              display: "inline-block",
-            }}
-          />
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              background: "#333333",
-              display: "inline-block",
-            }}
-          />
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              background: "#333333",
-              display: "inline-block",
-            }}
-          />
-        </div>
+        {/* Cloud badge */}
+        <span
+          style={{
+            fontSize: 7,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            color: "#000",
+            background: textColor,
+            padding: "1px 4px",
+            textTransform: "uppercase",
+          }}
+        >
+          {cloudTag}
+        </span>
       </div>
 
       {/* Body */}
@@ -134,6 +137,16 @@ function TerminalNode({ data }: NodeProps) {
             fontSize: 11,
             fontWeight: 600,
             color: "#FFFFFF",
+            marginBottom: 2,
+            wordBreak: "break-word",
+          }}
+        >
+          {providerLabel}
+        </div>
+        <div
+          style={{
+            fontSize: 8,
+            color: "#555",
             marginBottom: 4,
             wordBreak: "break-word",
           }}

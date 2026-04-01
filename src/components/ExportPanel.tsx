@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { X, Copy, Check, FileCode, Download } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
 import { generateK8sYaml } from "@/lib/generateK8s";
-import { generateTerraform } from "@/lib/generateTerraform";
+import { generateProviderTerraform, CLOUD_LABELS } from "@/lib/cloudProviders";
 
 type Tab = "k8s" | "terraform";
 
@@ -17,9 +17,17 @@ export default function ExportPanel({ open, onClose }: ExportPanelProps) {
   const [tab, setTab] = useState<Tab>("k8s");
   const [copied, setCopied] = useState(false);
   const nodes = useCanvasStore((s) => s.nodes);
+  const activeCloud = useCanvasStore((s) => s.activeCloud);
 
   const k8sCode = useMemo(() => generateK8sYaml(nodes), [nodes]);
-  const tfCode = useMemo(() => generateTerraform(nodes), [nodes]);
+  const tfCode = useMemo(
+    () =>
+      generateProviderTerraform(
+        activeCloud,
+        nodes.map((n) => ({ label: n.data.label, type: n.data.type }))
+      ),
+    [nodes, activeCloud]
+  );
   const code = tab === "k8s" ? k8sCode : tfCode;
 
   const handleCopy = async () => {
@@ -78,7 +86,7 @@ export default function ExportPanel({ open, onClose }: ExportPanelProps) {
               : "text-gray-light hover:text-green"
           }`}
         >
-          Terraform
+          Terraform ({CLOUD_LABELS[activeCloud]})
         </button>
       </div>
 
