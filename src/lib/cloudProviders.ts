@@ -16,34 +16,37 @@ export const CLOUD_TAGS: Record<CloudProvider, string> = {
 
 // ── Node label mapping per provider ────────────────────
 
-const NODE_LABELS: Record<CloudProvider, Partial<Record<InfraNodeType, string>>> = {
+// Provider-specific service prefixes per node type.
+// The original node label is appended to give context-aware names
+// e.g. "MongoDB" + aws/database → "Amazon RDS — MongoDB"
+const NODE_PREFIXES: Record<CloudProvider, Partial<Record<InfraNodeType, string>>> = {
   aws: {
     "load-balancer": "AWS ALB",
     "api-gateway": "API Gateway (AWS)",
-    docker: "ECS Fargate Container",
+    docker: "ECS Fargate",
     kubernetes: "EKS Node Group",
     server: "EC2 Instance",
-    database: "Amazon RDS (Postgres)",
-    cache: "ElastiCache (Redis)",
+    database: "Amazon RDS",
+    cache: "ElastiCache",
     queue: "Amazon SQS",
     storage: "S3 Bucket",
-    cdn: "CloudFront Distribution",
+    cdn: "CloudFront",
     firewall: "Security Group",
-    monitoring: "CloudWatch Dashboard",
+    monitoring: "CloudWatch",
   },
   digitalocean: {
     "load-balancer": "DO Load Balancer",
-    "api-gateway": "DO App Platform Gateway",
-    docker: "DO App Platform Container",
+    "api-gateway": "DO App Platform",
+    docker: "DO App Platform",
     kubernetes: "DOKS Node Pool",
     server: "DO Droplet",
-    database: "DO Managed Postgres",
-    cache: "DO Managed Redis",
+    database: "DO Managed DB",
+    cache: "DO Managed Cache",
     queue: "RabbitMQ Droplet",
-    storage: "DO Spaces Bucket",
-    cdn: "DO CDN Endpoint",
+    storage: "DO Spaces",
+    cdn: "DO CDN",
     firewall: "DO Cloud Firewall",
-    monitoring: "DO Monitoring Agent",
+    monitoring: "DO Monitoring",
   },
   "local-k8s": {
     "load-balancer": "Ingress Controller",
@@ -51,13 +54,13 @@ const NODE_LABELS: Record<CloudProvider, Partial<Record<InfraNodeType, string>>>
     docker: "Deployment Pod",
     kubernetes: "K8s Deployment",
     server: "Deployment Pod",
-    database: "StatefulSet Postgres",
-    cache: "StatefulSet Redis",
-    queue: "StatefulSet RabbitMQ",
+    database: "StatefulSet",
+    cache: "StatefulSet",
+    queue: "StatefulSet",
     storage: "PersistentVolumeClaim",
     cdn: "Nginx Proxy Cache",
     firewall: "NetworkPolicy",
-    monitoring: "Prometheus Stack",
+    monitoring: "Prometheus",
   },
 };
 
@@ -66,7 +69,9 @@ export function getProviderLabel(
   nodeType: InfraNodeType,
   fallbackLabel: string
 ): string {
-  return NODE_LABELS[cloud]?.[nodeType] ?? fallbackLabel;
+  const prefix = NODE_PREFIXES[cloud]?.[nodeType];
+  if (!prefix) return fallbackLabel;
+  return `${prefix} — ${fallbackLabel}`;
 }
 
 // ── Terraform generators per provider ──────────────────
