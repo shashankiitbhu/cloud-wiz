@@ -25,10 +25,19 @@ export type InfraNodeType =
   | "api-gateway"
   | "monitoring";
 
+export interface ContainerMeta {
+  repoUrl: string;
+  language: string;
+  framework: string;
+  dockerfile: string;
+  k8sYaml: string;
+}
+
 export interface InfraNodeData extends Record<string, unknown> {
   label: string;
   type: InfraNodeType;
   chaosAffected?: boolean;
+  containerMeta?: ContainerMeta;
 }
 
 export type InfraNode = Node<InfraNodeData>;

@@ -12,13 +12,15 @@ import CostPanel from "@/components/CostPanel";
 import CompliancePanel from "@/components/CompliancePanel";
 import SyncPanel from "@/components/SyncPanel";
 import ConstraintModal from "@/components/ConstraintModal";
+import ContainerizerModal from "@/components/ContainerizerModal";
 import ImportModal from "@/components/ImportModal";
 import TemplatesModal from "@/components/TemplatesModal";
 
 export default function Home() {
-  const [activePanel, setActivePanel] = useState<SidebarPanel>("github");
+  const [activePanel, setActivePanel] = useState<SidebarPanel>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [containerizerOpen, setContainerizerOpen] = useState(false);
 
   return (
     <div className="flex h-full flex-col bg-black">
@@ -30,10 +32,15 @@ export default function Home() {
           onPanelChange={setActivePanel}
           onOpenImport={() => setImportOpen(true)}
           onOpenTemplates={() => setTemplatesOpen(true)}
+          onOpenContainerizer={() => setContainerizerOpen(true)}
         />
 
         <main className="relative flex flex-1 flex-col overflow-hidden">
-          <Canvas />
+          <Canvas
+            onOpenTemplates={() => setTemplatesOpen(true)}
+            onOpenContainerizer={() => setContainerizerOpen(true)}
+            onOpenImport={() => setImportOpen(true)}
+          />
           <PromptBar />
         </main>
 
@@ -63,6 +70,7 @@ export default function Home() {
 
       {/* Modals */}
       <ConstraintModal />
+      <ContainerizerModal open={containerizerOpen} onClose={() => setContainerizerOpen(false)} />
       <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
       <TemplatesModal open={templatesOpen} onClose={() => setTemplatesOpen(false)} />
     </div>

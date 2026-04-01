@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -10,34 +10,180 @@ import {
   type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { FolderOpen, Upload, Layout, Container, Trash2 } from "lucide-react";
 
 import useCanvasStore from "@/store/useCanvasStore";
-import { MOCK_NODES, MOCK_EDGES } from "@/store/mockData";
 import TerminalNode from "@/components/nodes/TerminalNode";
+import {
+  type SavedArchitecture,
+  listSaved,
+  loadArchitecture,
+  deleteArchitecture,
+  setCurrentId,
+} from "@/lib/persistence";
 
-export default function Canvas() {
+// ── Welcome Screen (empty state) ──────────────────────
+
+function WelcomeScreen({
+  onOpenTemplates,
+  onOpenContainerizer,
+  onOpenImport,
+}: {
+  onOpenTemplates: () => void;
+  onOpenContainerizer: () => void;
+  onOpenImport: () => void;
+}) {
+  const [saved, setSaved] = useState<SavedArchitecture[]>([]);
+  const setNodes = useCanvasStore((s) => s.setNodes);
+  const setEdges = useCanvasStore((s) => s.setEdges);
+
+  useEffect(() => {
+    setSaved(listSaved());
+  }, []);
+
+  const handleLoad = (id: string) => {
+    const arch = loadArchitecture(id);
+    if (!arch) return;
+    useCanvasStore.getState().resetChaos();
+    setNodes(arch.nodes);
+    setEdges(arch.edges);
+    setCurrentId(id);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteArchitecture(id);
+    setSaved((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const formatDate = (ts: number) =>
+    new Date(ts).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  return (
+    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
+      {/* Dot grid background */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #39FF1418 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-6 px-6">
+        {/* Title */}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-green">
+            Cloud Wiz
+          </p>
+          <p className="text-xs text-gray-light">
+            Describe your architecture in below chat, or start from one of
+            these options.
+          </p>
+        </div>
+
+        {/* Quick actions */}
+        <div className="flex flex-wrap justify-center gap-2">
+          <button
+            onClick={onOpenTemplates}
+            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
+          >
+            <Layout className="h-3.5 w-3.5" />
+            Start from Template
+          </button>
+          <button
+            onClick={onOpenContainerizer}
+            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
+          >
+            <Container className="h-3.5 w-3.5" />
+            Containerize a Repo
+          </button>
+          <button
+            onClick={onOpenImport}
+            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Import
+          </button>
+        </div>
+
+        {/* Saved projects */}
+        {saved.length > 0 && (
+          <div className="w-full max-w-md">
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-light">
+              <FolderOpen className="h-3 w-3" />
+              Saved Projects
+            </div>
+            <div className="border border-gray bg-black">
+              {saved.slice(0, 5).map((arch) => (
+                <div
+                  key={arch.id}
+                  className="group flex items-center gap-3 border-b border-gray px-3 py-2 last:border-b-0"
+                >
+                  <div
+                    className="flex-1 cursor-pointer transition-colors hover:text-green"
+                    onClick={() => handleLoad(arch.id)}
+                  >
+                    <div className="text-xs font-bold text-white group-hover:text-green">
+                      {arch.name}
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] text-gray-light">
+                      <span>{arch.description}</span>
+                      <span>{formatDate(arch.updatedAt)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(arch.id);
+                    }}
+                    className="p-1 text-gray-light opacity-0 transition-all hover:text-orange group-hover:opacity-100"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Decorative corner brackets */}
+        <div className="absolute -left-2 -top-2 h-6 w-6 border-l border-t border-green" />
+        <div className="absolute -right-2 -top-2 h-6 w-6 border-r border-t border-green" />
+        <div className="absolute -bottom-2 -left-2 h-6 w-6 border-b border-l border-green" />
+        <div className="absolute -bottom-2 -right-2 h-6 w-6 border-b border-r border-green" />
+      </div>
+    </div>
+  );
+}
+
+// ── Canvas ─────────────────────────────────────────────
+
+interface CanvasProps {
+  onOpenTemplates: () => void;
+  onOpenContainerizer: () => void;
+  onOpenImport: () => void;
+}
+
+export default function Canvas({
+  onOpenTemplates,
+  onOpenContainerizer,
+  onOpenImport,
+}: CanvasProps) {
   const {
     nodes,
     edges,
     onNodesChange,
     onEdgesChange,
     onConnect,
-    setNodes,
-    setEdges,
   } = useCanvasStore();
 
-  const nodeTypes: NodeTypes = useMemo(
-    () => ({ terminal: TerminalNode }),
-    []
-  );
-
-  // Load mock data on mount
-  useEffect(() => {
-    if (nodes.length === 0) {
-      setNodes(MOCK_NODES);
-      setEdges(MOCK_EDGES);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const nodeTypes: NodeTypes = useMemo(() => ({ terminal: TerminalNode }), []);
 
   const proOptions = useMemo(() => ({ hideAttribution: true }), []);
 
@@ -46,21 +192,29 @@ export default function Canvas() {
       style: { stroke: "#39FF14", strokeWidth: 1.5 },
       type: "smoothstep" as const,
     }),
-    []
+    [],
   );
 
-  const onNodeDelete = useCallback(
-    (deleted: { id: string }[]) => {
-      const store = useCanvasStore.getState();
-      const deletedIds = new Set(deleted.map((n) => n.id));
-      store.setEdges(
-        store.edges.filter(
-          (e) => !deletedIds.has(e.source) && !deletedIds.has(e.target)
-        )
-      );
-    },
-    []
-  );
+  const onNodeDelete = useCallback((deleted: { id: string }[]) => {
+    const store = useCanvasStore.getState();
+    const deletedIds = new Set(deleted.map((n) => n.id));
+    store.setEdges(
+      store.edges.filter(
+        (e) => !deletedIds.has(e.source) && !deletedIds.has(e.target),
+      ),
+    );
+  }, []);
+
+  // Empty state — show welcome screen
+  if (nodes.length === 0) {
+    return (
+      <WelcomeScreen
+        onOpenTemplates={onOpenTemplates}
+        onOpenContainerizer={onOpenContainerizer}
+        onOpenImport={onOpenImport}
+      />
+    );
+  }
 
   return (
     <div className="relative flex-1">
