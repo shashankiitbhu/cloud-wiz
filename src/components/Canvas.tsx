@@ -14,7 +14,23 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { toPng } from "html-to-image";
-import { FolderOpen, Upload, Layout, Container, Trash2, Workflow, Download } from "lucide-react";
+import {
+  FolderOpen,
+  Upload,
+  Layout,
+  Container,
+  Trash2,
+  Workflow,
+  Download,
+  Terminal,
+  Zap,
+  DollarSign,
+  ShieldCheck,
+  GitBranch,
+  Globe,
+  FileCode,
+  Sparkles,
+} from "lucide-react";
 
 import useCanvasStore from "@/store/useCanvasStore";
 import TerminalNode from "@/components/nodes/TerminalNode";
@@ -69,8 +85,19 @@ function WelcomeScreen({
       minute: "2-digit",
     });
 
+  const FEATURES = [
+    { icon: Sparkles, label: "AI Architecture", desc: "Describe in plain English, get a full infra graph" },
+    { icon: Globe, label: "Multi-Cloud", desc: "Toggle AWS / DigitalOcean / Local K8s instantly" },
+    { icon: Workflow, label: "Combined Flow", desc: "Wire multiple repos into one deployment" },
+    { icon: Zap, label: "Chaos Testing", desc: "Simulate failures and see cascade impact" },
+    { icon: DollarSign, label: "Cost Estimation", desc: "Compare pricing across cloud providers" },
+    { icon: ShieldCheck, label: "Compliance", desc: "SOC2, HIPAA, Well-Architected checks" },
+    { icon: FileCode, label: "Code Export", desc: "Terraform + K8s YAML per provider" },
+    { icon: GitBranch, label: "Git Sync", desc: "Push infra as a PR with CI/CD workflow" },
+  ];
+
   return (
-    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
+    <div className="relative flex flex-1 overflow-hidden bg-black">
       {/* Dot grid background */}
       <div
         className="absolute inset-0"
@@ -80,60 +107,89 @@ function WelcomeScreen({
           backgroundSize: "24px 24px",
         }}
       />
+      {/* Scanline sweep */}
+      <div className="scanline-overlay absolute inset-0 pointer-events-none" />
 
-      <div className="relative z-10 flex w-full max-w-2xl flex-col items-center gap-6 px-6">
-        {/* Title */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="text-sm font-bold uppercase tracking-widest text-green">
+      <div className="relative z-10 flex flex-1 flex-col items-center overflow-auto py-10 px-6">
+        {/* ── Hero ── */}
+        <div className="flex flex-col items-center gap-1 text-center mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="border border-green p-2.5">
+              <Terminal className="h-6 w-6 text-green" />
+            </div>
+          </div>
+          <h1 className="text-lg font-bold uppercase tracking-[0.25em] text-green">
             Cloud Wiz
+          </h1>
+          <p className="text-[10px] uppercase tracking-widest text-gray-light">
+            Interactive Cloud Architecture Synthesizer
           </p>
-          <p className="text-xs text-gray-light">
-            Describe your architecture in below chat, or start from one of
-            these options.
-          </p>
+          <div className="mt-2 flex items-center gap-2 text-[10px] text-gray-light">
+            <span className="inline-block h-1.5 w-1.5 bg-green animate-pulse" />
+            System Online — Ready for input
+          </div>
         </div>
 
-        {/* Quick actions */}
-        <div className="flex flex-wrap justify-center gap-2">
-          <button
-            onClick={onOpenTemplates}
-            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
-          >
-            <Layout className="h-3.5 w-3.5" />
-            Start from Template
-          </button>
-          <button
-            onClick={onOpenContainerizer}
-            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
-          >
-            <Container className="h-3.5 w-3.5" />
-            Containerize a Repo
-          </button>
-          <button
-            onClick={onOpenCombinedFlow}
-            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
-          >
-            <Workflow className="h-3.5 w-3.5" />
-            Combined Flow
-          </button>
+        {/* ── Quick Start ── */}
+        <div className="w-full max-w-2xl mb-8">
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-light text-center">
+            Quick Start
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-gray sm:grid-cols-4">
+            {[
+              { icon: Terminal, label: "Prompt", desc: "Describe below", action: undefined as (() => void) | undefined },
+              { icon: Layout, label: "Template", desc: "Pre-built stacks", action: onOpenTemplates },
+              { icon: Container, label: "Containerize", desc: "Analyze a repo", action: onOpenContainerizer },
+              { icon: Workflow, label: "Combined Flow", desc: "Multi-repo deploy", action: onOpenCombinedFlow },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                disabled={!item.action}
+                className="flex flex-col items-center gap-2 bg-black p-4 text-green transition-colors hover:bg-green/10 disabled:cursor-default disabled:opacity-60"
+              >
+                <div className="border border-green/40 p-2">
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-wide">{item.label}</span>
+                <span className="text-[8px] text-gray-light">{item.desc}</span>
+              </button>
+            ))}
+          </div>
           <button
             onClick={onOpenImport}
-            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
+            className="mt-px flex w-full items-center justify-center gap-2 bg-black border border-gray py-2 text-[10px] font-bold uppercase tracking-wide text-gray-light transition-colors hover:bg-green/5 hover:text-green"
           >
-            <Upload className="h-3.5 w-3.5" />
-            Import
+            <Upload className="h-3 w-3" />
+            Import Existing (docker-compose, Terraform, K8s YAML)
           </button>
         </div>
 
-        {/* Saved projects */}
+        {/* ── Features Grid ── */}
+        <div className="w-full max-w-2xl mb-8">
+          <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-light text-center">
+            Capabilities
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {FEATURES.map((f) => (
+              <div key={f.label} className="group border border-gray bg-black p-3 transition-colors hover:border-green/50">
+                <f.icon className="mb-2 h-4 w-4 text-green/60 transition-colors group-hover:text-green" />
+                <div className="text-[10px] font-bold uppercase tracking-wide text-white mb-0.5">{f.label}</div>
+                <div className="text-[9px] leading-relaxed text-gray-light">{f.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Saved Projects ── */}
         {saved.length > 0 && (
-          <div className="w-full max-w-md">
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-light">
+          <div className="w-full max-w-md mb-6">
+            <div className="mb-2 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-light">
               <FolderOpen className="h-3 w-3" />
-              Saved Projects
+              Recent Projects
             </div>
             <div className="border border-gray bg-black">
-              {saved.slice(0, 5).map((arch) => (
+              {saved.slice(0, 4).map((arch) => (
                 <div
                   key={arch.id}
                   className="group flex items-center gap-3 border-b border-gray px-3 py-2 last:border-b-0"
@@ -165,11 +221,12 @@ function WelcomeScreen({
           </div>
         )}
 
-        {/* Decorative corner brackets */}
-        <div className="absolute -left-2 -top-2 h-6 w-6 border-l border-t border-green" />
-        <div className="absolute -right-2 -top-2 h-6 w-6 border-r border-t border-green" />
-        <div className="absolute -bottom-2 -left-2 h-6 w-6 border-b border-l border-green" />
-        <div className="absolute -bottom-2 -right-2 h-6 w-6 border-b border-r border-green" />
+        {/* ── Footer hint ── */}
+        <div className="flex items-center gap-2 text-[9px] text-gray-light">
+          <span className="text-green">$</span>
+          Type a prompt below to generate your architecture
+          <span className="inline-block h-3 w-px bg-green animate-blink" />
+        </div>
       </div>
     </div>
   );
