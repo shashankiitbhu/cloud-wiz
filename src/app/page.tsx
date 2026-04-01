@@ -15,7 +15,7 @@ import ImportModal from "@/components/ImportModal";
 import TemplatesModal from "@/components/TemplatesModal";
 
 export default function Home() {
-  const [activePanel, setActivePanel] = useState<SidebarPanel>(null);
+  const [activePanel, setActivePanel] = useState<SidebarPanel>("github");
   const [importOpen, setImportOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
 
