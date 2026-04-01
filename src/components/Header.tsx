@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { Terminal, Zap, RotateCcw, ExternalLink } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
-import { computeChaosWaves } from "@/lib/chaosSimulation";
+import { analyzeFailure, analyzeResilience } from "@/lib/graphAnalysis";
 
 export default function Header() {
   const chaosMode = useCanvasStore((s) => s.chaosMode);
@@ -17,29 +17,33 @@ export default function Header() {
     // Reset any prior chaos
     store.resetChaos();
 
-    const waves = computeChaosWaves(store.nodes, store.edges);
-    if (waves.length === 0) return;
+    // Run real analysis
+    const impact = analyzeFailure(store.nodes, store.edges);
+    const resilience = analyzeResilience(store.nodes, store.edges);
 
+    store.setFailureImpact(impact);
+    store.setResilienceReport(resilience);
     store.setChaosMode(true);
+    store.setChaosReportOpen(true);
 
     // Clear any existing timers
     timersRef.current.forEach(clearTimeout);
     timersRef.current = [];
 
-    // Animate waves with delay
-    waves.forEach((wave, i) => {
+    // Animate waves from the real analysis
+    impact.waves.forEach((wave, i) => {
       const timer = setTimeout(() => {
         const current = useCanvasStore.getState();
 
         // Mark nodes as chaos-affected
-        for (const nodeId of wave.nodeIds) {
-          current.setChaosAffected(nodeId, true);
+        for (const node of wave.nodes) {
+          current.setChaosAffected(node.id, true);
         }
 
         // Turn affected edges orange
-        const affectedSet = new Set(wave.edgeIds);
+        const affectedEdgeIds = new Set(wave.edges.map((e) => e.id));
         const updatedEdges = useCanvasStore.getState().edges.map((e) =>
-          affectedSet.has(e.id)
+          affectedEdgeIds.has(e.id)
             ? {
                 ...e,
                 style: { stroke: "#FF5F1F", strokeWidth: 2 },

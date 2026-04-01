@@ -9,6 +9,7 @@ import {
   applyEdgeChanges,
   addEdge,
 } from "@xyflow/react";
+import type { FailureImpact, ResilienceReport } from "@/lib/graphAnalysis";
 
 export type InfraNodeType =
   | "docker"
@@ -36,6 +37,9 @@ interface CanvasState {
   nodes: InfraNode[];
   edges: Edge[];
   chaosMode: boolean;
+  failureImpact: FailureImpact | null;
+  resilienceReport: ResilienceReport | null;
+  chaosReportOpen: boolean;
 
   // React Flow handlers
   onNodesChange: OnNodesChange;
@@ -51,6 +55,9 @@ interface CanvasState {
   // Chaos
   setChaosMode: (active: boolean) => void;
   setChaosAffected: (nodeId: string, affected: boolean) => void;
+  setFailureImpact: (impact: FailureImpact) => void;
+  setResilienceReport: (report: ResilienceReport) => void;
+  setChaosReportOpen: (open: boolean) => void;
   resetChaos: () => void;
 }
 
@@ -58,6 +65,9 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
   nodes: [],
   edges: [],
   chaosMode: false,
+  failureImpact: null,
+  resilienceReport: null,
+  chaosReportOpen: false,
 
   onNodesChange: (changes) => {
     set({ nodes: applyNodeChanges(changes, get().nodes) as InfraNode[] });
@@ -98,9 +108,16 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
       ),
     })),
 
+  setFailureImpact: (impact) => set({ failureImpact: impact }),
+  setResilienceReport: (report) => set({ resilienceReport: report }),
+  setChaosReportOpen: (open) => set({ chaosReportOpen: open }),
+
   resetChaos: () =>
     set((s) => ({
       chaosMode: false,
+      failureImpact: null,
+      resilienceReport: null,
+      chaosReportOpen: false,
       nodes: s.nodes.map((n) => ({
         ...n,
         data: { ...n.data, chaosAffected: false },

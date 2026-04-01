@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import PromptBar from "@/components/PromptBar";
 import Canvas from "@/components/Canvas";
 import ExportPanel from "@/components/ExportPanel";
+import ChaosReport from "@/components/ChaosReport";
 
 export default function Home() {
   const [exportOpen, setExportOpen] = useState(false);
@@ -15,7 +16,10 @@ export default function Home() {
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar onToggleExport={() => setExportOpen((v) => !v)} exportOpen={exportOpen} />
+        <Sidebar
+          onToggleExport={() => setExportOpen((v) => !v)}
+          exportOpen={exportOpen}
+        />
 
         <main className="relative flex flex-1 flex-col overflow-hidden">
           <Canvas />
@@ -23,6 +27,7 @@ export default function Home() {
         </main>
 
         <ExportPanel open={exportOpen} onClose={() => setExportOpen(false)} />
+        <ChaosReport />
       </div>
     </div>
   );
