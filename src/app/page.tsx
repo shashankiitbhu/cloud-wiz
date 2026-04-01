@@ -10,6 +10,7 @@ import ChaosReport from "@/components/ChaosReport";
 import SaveLoadPanel from "@/components/SaveLoadPanel";
 import CostPanel from "@/components/CostPanel";
 import CompliancePanel from "@/components/CompliancePanel";
+import SyncPanel from "@/components/SyncPanel";
 import ImportModal from "@/components/ImportModal";
 import TemplatesModal from "@/components/TemplatesModal";
 
@@ -50,6 +51,10 @@ export default function Home() {
         />
         <CompliancePanel
           open={activePanel === "compliance"}
+          onClose={() => setActivePanel(null)}
+        />
+        <SyncPanel
+          open={activePanel === "github"}
           onClose={() => setActivePanel(null)}
         />
         <ChaosReport />

@@ -12,10 +12,11 @@ import {
   Database,
   Shield,
   Server,
+  GitBranch as GitBranchIcon,
 } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
 
-export type SidebarPanel = "export" | "save" | "cost" | "compliance" | null;
+export type SidebarPanel = "export" | "save" | "cost" | "compliance" | "github" | null;
 
 interface SidebarProps {
   activePanel: SidebarPanel;
@@ -54,6 +55,7 @@ export default function Sidebar({
     { icon: FolderOpen, label: "Projects", panel: "save" },
     { icon: DollarSign, label: "Costs", panel: "cost" },
     { icon: ShieldCheck, label: "Compliance", panel: "compliance" },
+    { icon: GitBranchIcon, label: "Git Sync", panel: "github" },
     { icon: Upload, label: "Import", action: onOpenImport },
     { icon: Layout, label: "Templates", action: onOpenTemplates },
   ];
