@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* ── Terminal Brutalism Design Tokens ── */
+@theme inline {
+  --color-black: #000000;
+  --color-green: #39FF14;
+  --color-green-dim: #1a7a0a;
+  --color-green-glow: #39ff1433;
+  --color-orange: #FF5F1F;
+  --color-orange-dim: #7a2e0f;
+  --color-orange-glow: #ff5f1f33;
+  --color-white: #FFFFFF;
+  --color-gray: #333333;
+  --color-gray-light: #888888;
+  --font-mono: var(--font-jetbrains);
+}
+
+/* ── Base Reset ── */
+* {
+  border-radius: 0 !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  color: #FFFFFF;
+  font-family: var(--font-jetbrains), monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #39FF14;
+  border: 1px solid #000000;
+}
+
+/* ── Selection ── */
+::selection {
+  background: #39FF14;
+  color: #000000;
+}
+
+/* ── Chaos shake animation ── */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, -1px); }
+  20% { transform: translate(2px, 1px); }
+  30% { transform: translate(-1px, 2px); }
+  40% { transform: translate(1px, -2px); }
+  50% { transform: translate(-2px, 2px); }
+  60% { transform: translate(2px, -1px); }
+  70% { transform: translate(-1px, -2px); }
+  80% { transform: translate(2px, 1px); }
+  90% { transform: translate(-2px, -1px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+/* ── Cursor blink for prompt ── */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Scanline overlay ── */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scanline-overlay::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(57, 255, 20, 0.08);
+  animation: scanline 4s linear infinite;
+  pointer-events: none;
+}
