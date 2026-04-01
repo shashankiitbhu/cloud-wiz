@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
+import Sidebar, { type SidebarPanel } from "@/components/Sidebar";
 import PromptBar from "@/components/PromptBar";
 import Canvas from "@/components/Canvas";
 import ExportPanel from "@/components/ExportPanel";
 import ChaosReport from "@/components/ChaosReport";
+import SaveLoadPanel from "@/components/SaveLoadPanel";
+import CostPanel from "@/components/CostPanel";
+import CompliancePanel from "@/components/CompliancePanel";
+import ImportModal from "@/components/ImportModal";
+import TemplatesModal from "@/components/TemplatesModal";
 
 export default function Home() {
-  const [exportOpen, setExportOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<SidebarPanel>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
 
   return (
     <div className="flex h-full flex-col bg-black">
@@ -17,8 +24,10 @@ export default function Home() {
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
-          onToggleExport={() => setExportOpen((v) => !v)}
-          exportOpen={exportOpen}
+          activePanel={activePanel}
+          onPanelChange={setActivePanel}
+          onOpenImport={() => setImportOpen(true)}
+          onOpenTemplates={() => setTemplatesOpen(true)}
         />
 
         <main className="relative flex flex-1 flex-col overflow-hidden">
@@ -26,9 +35,29 @@ export default function Home() {
           <PromptBar />
         </main>
 
-        <ExportPanel open={exportOpen} onClose={() => setExportOpen(false)} />
+        {/* Side panels — only one at a time */}
+        <ExportPanel
+          open={activePanel === "export"}
+          onClose={() => setActivePanel(null)}
+        />
+        <SaveLoadPanel
+          open={activePanel === "save"}
+          onClose={() => setActivePanel(null)}
+        />
+        <CostPanel
+          open={activePanel === "cost"}
+          onClose={() => setActivePanel(null)}
+        />
+        <CompliancePanel
+          open={activePanel === "compliance"}
+          onClose={() => setActivePanel(null)}
+        />
         <ChaosReport />
       </div>
+
+      {/* Modals */}
+      <ImportModal open={importOpen} onClose={() => setImportOpen(false)} />
+      <TemplatesModal open={templatesOpen} onClose={() => setTemplatesOpen(false)} />
     </div>
   );
 }

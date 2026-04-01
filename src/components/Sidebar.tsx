@@ -2,8 +2,12 @@
 
 import {
   Layers,
-  Network,
   FileCode,
+  FolderOpen,
+  Upload,
+  Layout,
+  DollarSign,
+  ShieldCheck,
   Box,
   Database,
   Shield,
@@ -11,9 +15,13 @@ import {
 } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
 
+export type SidebarPanel = "export" | "save" | "cost" | "compliance" | null;
+
 interface SidebarProps {
-  onToggleExport: () => void;
-  exportOpen: boolean;
+  activePanel: SidebarPanel;
+  onPanelChange: (panel: SidebarPanel) => void;
+  onOpenImport: () => void;
+  onOpenTemplates: () => void;
 }
 
 const NODE_PALETTE = [
@@ -23,10 +31,32 @@ const NODE_PALETTE = [
   { icon: Shield, label: "Firewall" },
 ] as const;
 
-export default function Sidebar({ onToggleExport, exportOpen }: SidebarProps) {
+interface NavItem {
+  icon: typeof Layers;
+  label: string;
+  panel?: SidebarPanel;
+  action?: () => void;
+}
+
+export default function Sidebar({
+  activePanel,
+  onPanelChange,
+  onOpenImport,
+  onOpenTemplates,
+}: SidebarProps) {
   const nodeCount = useCanvasStore((s) => s.nodes.length);
   const edgeCount = useCanvasStore((s) => s.edges.length);
   const chaosMode = useCanvasStore((s) => s.chaosMode);
+
+  const navItems: NavItem[] = [
+    { icon: Layers, label: "Canvas", panel: null },
+    { icon: FileCode, label: "Export", panel: "export" },
+    { icon: FolderOpen, label: "Projects", panel: "save" },
+    { icon: DollarSign, label: "Costs", panel: "cost" },
+    { icon: ShieldCheck, label: "Compliance", panel: "compliance" },
+    { icon: Upload, label: "Import", action: onOpenImport },
+    { icon: Layout, label: "Templates", action: onOpenTemplates },
+  ];
 
   return (
     <aside className="flex w-48 flex-col border-r border-green bg-black">
@@ -35,29 +65,34 @@ export default function Sidebar({ onToggleExport, exportOpen }: SidebarProps) {
         <div className="border-b border-gray px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-light">
           Navigation
         </div>
-        <button
-          className="flex items-center gap-2 px-3 py-2 text-xs transition-colors bg-green/10 text-green"
-        >
-          <Layers className="h-3.5 w-3.5" />
-          Canvas
-        </button>
-        <button
-          className="flex items-center gap-2 px-3 py-2 text-xs transition-colors text-gray-light hover:bg-green/5 hover:text-green"
-        >
-          <Network className="h-3.5 w-3.5" />
-          Topology
-        </button>
-        <button
-          onClick={onToggleExport}
-          className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
-            exportOpen
-              ? "bg-green/10 text-green"
-              : "text-gray-light hover:bg-green/5 hover:text-green"
-          }`}
-        >
-          <FileCode className="h-3.5 w-3.5" />
-          Export
-        </button>
+        {navItems.map((item) => {
+          const isActive =
+            item.panel !== undefined && activePanel === item.panel;
+          const isCanvas = item.panel === null && !item.action && activePanel === null;
+
+          return (
+            <button
+              key={item.label}
+              onClick={() => {
+                if (item.action) {
+                  item.action();
+                } else if (item.panel !== undefined) {
+                  onPanelChange(activePanel === item.panel ? null : item.panel);
+                } else {
+                  onPanelChange(null);
+                }
+              }}
+              className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
+                isActive || isCanvas
+                  ? "bg-green/10 text-green"
+                  : "text-gray-light hover:bg-green/5 hover:text-green"
+              }`}
+            >
+              <item.icon className="h-3.5 w-3.5" />
+              {item.label}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Node Palette */}
