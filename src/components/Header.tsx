@@ -1,8 +1,64 @@
 "use client";
 
-import { Terminal, Zap, ExternalLink } from "lucide-react";
+import { useCallback, useRef } from "react";
+import { Terminal, Zap, RotateCcw, ExternalLink } from "lucide-react";
+import useCanvasStore from "@/store/useCanvasStore";
+import { computeChaosWaves } from "@/lib/chaosSimulation";
 
 export default function Header() {
+  const chaosMode = useCanvasStore((s) => s.chaosMode);
+  const nodeCount = useCanvasStore((s) => s.nodes.length);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const triggerChaos = useCallback(() => {
+    const store = useCanvasStore.getState();
+    if (store.nodes.length === 0) return;
+
+    // Reset any prior chaos
+    store.resetChaos();
+
+    const waves = computeChaosWaves(store.nodes, store.edges);
+    if (waves.length === 0) return;
+
+    store.setChaosMode(true);
+
+    // Clear any existing timers
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+
+    // Animate waves with delay
+    waves.forEach((wave, i) => {
+      const timer = setTimeout(() => {
+        const current = useCanvasStore.getState();
+
+        // Mark nodes as chaos-affected
+        for (const nodeId of wave.nodeIds) {
+          current.setChaosAffected(nodeId, true);
+        }
+
+        // Turn affected edges orange
+        const affectedSet = new Set(wave.edgeIds);
+        const updatedEdges = useCanvasStore.getState().edges.map((e) =>
+          affectedSet.has(e.id)
+            ? {
+                ...e,
+                style: { stroke: "#FF5F1F", strokeWidth: 2 },
+                animated: true,
+              }
+            : e
+        );
+        useCanvasStore.getState().setEdges(updatedEdges);
+      }, i * 600);
+      timersRef.current.push(timer);
+    });
+  }, []);
+
+  const resetChaos = useCallback(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+    useCanvasStore.getState().resetChaos();
+  }, []);
+
   return (
     <header className="flex items-center justify-between border-b border-green bg-black px-4 py-2 select-none">
       {/* Logo & Title */}
@@ -18,20 +74,34 @@ export default function Header() {
 
       {/* Center status */}
       <div className="hidden items-center gap-2 text-xs text-gray-light sm:flex">
-        <span className="inline-block h-2 w-2 bg-green" />
-        SYSTEM ONLINE
+        <span
+          className={`inline-block h-2 w-2 ${
+            chaosMode ? "bg-orange animate-pulse" : "bg-green"
+          }`}
+        />
+        {chaosMode ? "CHAOS MODE" : "SYSTEM ONLINE"}
       </div>
 
       {/* Right actions */}
       <div className="flex items-center gap-2">
-        {/* Chaos button placeholder — will be wired in Phase 4 */}
-        <button
-          disabled
-          className="flex items-center gap-1.5 border border-orange bg-black px-3 py-1 text-xs font-bold uppercase text-orange opacity-40 transition-opacity hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <Zap className="h-3.5 w-3.5" />
-          Chaos
-        </button>
+        {chaosMode ? (
+          <button
+            onClick={resetChaos}
+            className="flex items-center gap-1.5 border border-green bg-black px-3 py-1 text-xs font-bold uppercase text-green transition-colors hover:bg-green hover:text-black"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </button>
+        ) : (
+          <button
+            onClick={triggerChaos}
+            disabled={nodeCount === 0}
+            className="flex items-center gap-1.5 border border-orange bg-black px-3 py-1 text-xs font-bold uppercase text-orange transition-all hover:bg-orange hover:text-black disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-orange"
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Chaos
+          </button>
+        )}
 
         <a
           href="https://github.com"

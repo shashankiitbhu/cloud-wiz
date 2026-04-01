@@ -11,11 +11,10 @@ import {
 } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
 
-const NAV_ITEMS = [
-  { icon: Layers, label: "Canvas", active: true },
-  { icon: Network, label: "Topology", active: false },
-  { icon: FileCode, label: "Export", active: false },
-] as const;
+interface SidebarProps {
+  onToggleExport: () => void;
+  exportOpen: boolean;
+}
 
 const NODE_PALETTE = [
   { icon: Server, label: "Server" },
@@ -24,7 +23,7 @@ const NODE_PALETTE = [
   { icon: Shield, label: "Firewall" },
 ] as const;
 
-export default function Sidebar() {
+export default function Sidebar({ onToggleExport, exportOpen }: SidebarProps) {
   const nodeCount = useCanvasStore((s) => s.nodes.length);
   const edgeCount = useCanvasStore((s) => s.edges.length);
   const chaosMode = useCanvasStore((s) => s.chaosMode);
@@ -36,19 +35,29 @@ export default function Sidebar() {
         <div className="border-b border-gray px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-light">
           Navigation
         </div>
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.label}
-            className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
-              item.active
-                ? "bg-green/10 text-green"
-                : "text-gray-light hover:bg-green/5 hover:text-green"
-            }`}
-          >
-            <item.icon className="h-3.5 w-3.5" />
-            {item.label}
-          </button>
-        ))}
+        <button
+          className="flex items-center gap-2 px-3 py-2 text-xs transition-colors bg-green/10 text-green"
+        >
+          <Layers className="h-3.5 w-3.5" />
+          Canvas
+        </button>
+        <button
+          className="flex items-center gap-2 px-3 py-2 text-xs transition-colors text-gray-light hover:bg-green/5 hover:text-green"
+        >
+          <Network className="h-3.5 w-3.5" />
+          Topology
+        </button>
+        <button
+          onClick={onToggleExport}
+          className={`flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
+            exportOpen
+              ? "bg-green/10 text-green"
+              : "text-gray-light hover:bg-green/5 hover:text-green"
+          }`}
+        >
+          <FileCode className="h-3.5 w-3.5" />
+          Export
+        </button>
       </nav>
 
       {/* Node Palette */}
