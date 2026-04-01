@@ -38,6 +38,7 @@ export interface InfraNodeData extends Record<string, unknown> {
   type: InfraNodeType;
   chaosAffected?: boolean;
   containerMeta?: ContainerMeta;
+  sourceRepo?: string;
 }
 
 export type InfraNode = Node<InfraNodeData>;

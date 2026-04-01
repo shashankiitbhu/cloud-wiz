@@ -10,7 +10,7 @@ import {
   type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { FolderOpen, Upload, Layout, Container, Trash2 } from "lucide-react";
+import { FolderOpen, Upload, Layout, Container, Trash2, Workflow } from "lucide-react";
 
 import useCanvasStore from "@/store/useCanvasStore";
 import TerminalNode from "@/components/nodes/TerminalNode";
@@ -28,10 +28,12 @@ function WelcomeScreen({
   onOpenTemplates,
   onOpenContainerizer,
   onOpenImport,
+  onOpenCombinedFlow,
 }: {
   onOpenTemplates: () => void;
   onOpenContainerizer: () => void;
   onOpenImport: () => void;
+  onOpenCombinedFlow: () => void;
 }) {
   const [saved, setSaved] = useState<SavedArchitecture[]>([]);
   const setNodes = useCanvasStore((s) => s.setNodes);
@@ -104,6 +106,13 @@ function WelcomeScreen({
             Containerize a Repo
           </button>
           <button
+            onClick={onOpenCombinedFlow}
+            className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
+          >
+            <Workflow className="h-3.5 w-3.5" />
+            Combined Flow
+          </button>
+          <button
             onClick={onOpenImport}
             className="flex items-center gap-2 border border-green px-4 py-2 text-xs font-bold uppercase tracking-wide text-green transition-colors hover:bg-green hover:text-black"
           >
@@ -168,12 +177,14 @@ interface CanvasProps {
   onOpenTemplates: () => void;
   onOpenContainerizer: () => void;
   onOpenImport: () => void;
+  onOpenCombinedFlow: () => void;
 }
 
 export default function Canvas({
   onOpenTemplates,
   onOpenContainerizer,
   onOpenImport,
+  onOpenCombinedFlow,
 }: CanvasProps) {
   const {
     nodes,
@@ -212,6 +223,7 @@ export default function Canvas({
         onOpenTemplates={onOpenTemplates}
         onOpenContainerizer={onOpenContainerizer}
         onOpenImport={onOpenImport}
+        onOpenCombinedFlow={onOpenCombinedFlow}
       />
     );
   }

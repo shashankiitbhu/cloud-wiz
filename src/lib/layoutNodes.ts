@@ -5,6 +5,7 @@ interface RawNode {
   id: string;
   label: string;
   type: string;
+  sourceRepo?: string;
 }
 
 interface RawEdge {
@@ -62,6 +63,7 @@ export function layoutFromResponse(
         data: {
           label: n.label,
           type: (n.type as InfraNodeType) || "server",
+          ...(n.sourceRepo ? { sourceRepo: n.sourceRepo } : {}),
         },
       });
       startX += NODE_W + NODE_GAP_X;

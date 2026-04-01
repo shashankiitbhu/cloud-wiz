@@ -147,12 +147,29 @@ function TerminalNode({ data }: NodeProps) {
           style={{
             fontSize: 8,
             color: "#555",
-            marginBottom: 4,
+            marginBottom: 2,
             wordBreak: "break-word",
           }}
         >
           {nodeData.label}
         </div>
+        {nodeData.sourceRepo && (
+          <div
+            style={{
+              fontSize: 8,
+              color: textColor,
+              opacity: 0.6,
+              marginBottom: 2,
+              wordBreak: "break-word",
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+            }}
+          >
+            <span style={{ fontSize: 7 }}>&#9656;</span>
+            {nodeData.sourceRepo}
+          </div>
+        )}
         <div
           style={{
             fontSize: 9,

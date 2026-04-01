@@ -14,6 +14,7 @@ import {
   Server,
   GitBranch as GitBranchIcon,
   Container,
+  Workflow,
 } from "lucide-react";
 import useCanvasStore from "@/store/useCanvasStore";
 
@@ -25,6 +26,7 @@ interface SidebarProps {
   onOpenImport: () => void;
   onOpenTemplates: () => void;
   onOpenContainerizer: () => void;
+  onOpenCombinedFlow: () => void;
 }
 
 const NODE_PALETTE = [
@@ -47,6 +49,7 @@ export default function Sidebar({
   onOpenImport,
   onOpenTemplates,
   onOpenContainerizer,
+  onOpenCombinedFlow,
 }: SidebarProps) {
   const nodeCount = useCanvasStore((s) => s.nodes.length);
   const edgeCount = useCanvasStore((s) => s.edges.length);
@@ -60,6 +63,7 @@ export default function Sidebar({
     { icon: ShieldCheck, label: "Compliance", panel: "compliance" },
     { icon: GitBranchIcon, label: "Git Sync", panel: "github" },
     { icon: Container, label: "Containerize", action: onOpenContainerizer },
+    { icon: Workflow, label: "Combined Flow", action: onOpenCombinedFlow },
     { icon: Upload, label: "Import", action: onOpenImport },
     { icon: Layout, label: "Templates", action: onOpenTemplates },
   ];
